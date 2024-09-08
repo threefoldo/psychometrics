@@ -5,52 +5,97 @@ from openai import OpenAI
 import time, random
 from jinja2 import Template
 
+
 prompt_system = '''
-Given a list of questions and their corresponding answers about a user's Amazon shopping experience, imagine a detailed persona of a user who would provide those exact answers. Be sure to include key demographic information, relevant personality traits, shopping habits and preferences, and any other pertinent details that can be inferred from the provided answers.
-Then, carefully consider the target question that is asking for this user's likely response. Think step-by-step about how the imagined user, based on their established persona, would approach and answer this target question. Explain the logical reasoning of how their unique traits and shopping behaviors would lead them to select a particular answer from the given options.
-Output the full result in the following JSON format:
-{
-  "user_description": "A paragraph providing a comprehensive, concrete description of the imagined user persona, including all relevant demographic info, personality traits, shopping preferences and habits that can be gleaned from their provided answers. Avoid relying on implicit assumptions and aim to create a detailed, fleshed-out user profile.",
-  "reasoning": "A paragraph outlining the step-by-step logical reasoning and thought process of how this specific user persona would approach the target question based on their established traits and preferences. Explain how these factors would influence them to ultimately select a particular answer from the given options.", 
-  "answer": "A single digit representing their selected answer, ensuring it is consistent with both their persona and their answers to the other questions, and falls within the scope of the provided options."
-}
+You are an AI assistant specialized in user behavior analysis and prediction. Your task is to create a detailed user persona 
+based on provided survey responses, then predict how this persona would respond to a new question. Provide your analysis 
+and prediction in a structured JSON format.
 '''
 
 question_prompt = Template('''
-Here are a list of questions along with numerical answers:
-<question_and_answers>
-{{question_and_answers}}
-</question_and_answers>
+Your task is to analyze survey responses, create a user persona, and predict a response to a new question. Follow these steps:
 
-And here is a target question:
-<target_question>
-{{target_question}}
-</target_question>
+1. Review the provided survey questions and responses:
+<survey_responses>
+{{survey_responses}}
+</survey_responses>
 
-Please answer the target question, providing your full output in the JSON format specified previously.
+2. Based on these responses, construct or update a comprehensive user persona. Consider:
+   - Demographics (age, gender, occupation, location, etc.)
+   - Psychographics (values, attitudes, interests, lifestyle)
+   - Behavioral patterns and preferences
+   - Potential pain points or motivations
+   - Any other relevant characteristics that can be inferred
+<user_persona>
+{{user_persona}}
+</user_persona>
+
+3. Analyze the new question:
+<new_question>
+{{new_question}}
+</new_question>
+
+4. Consider how your constructed persona would approach this new question:
+   - Which aspects of the question would resonate most with them?
+   - How do their established traits and preferences influence their perspective?
+   - What factors would be most important in their decision-making process?
+
+5. Predict the most likely response the persona would give, ensuring consistency with their established profile and previous answers.
+
+6. Provide your full analysis and prediction in the following JSON format:
+
+{
+  "user_persona": {
+    "demographics": "Key demographic information inferred from survey responses",
+    "psychographics": "Relevant attitudes, values, and lifestyle factors",
+    "behaviors": "Notable behavioral patterns or preferences",
+    "motivations": "Primary motivations or pain points influencing decisions"
+  },
+  "persona_analysis": "A detailed paragraph describing the user persona, synthesizing the information from the above categories. Explain how you've drawn these conclusions from the survey responses.",
+  "question_analysis": "A paragraph examining the new question from the persona's perspective. Discuss which aspects would be most relevant or impactful for this user.",
+  "response_prediction": {
+    "predicted_response": "The predicted response to the new question",
+    "confidence_level": "High/Medium/Low, based on how well the persona aligns with the new question",
+    "reasoning": "A thorough explanation of why this response was predicted, referencing specific aspects of the persona and their previous responses"
+  }
+}
+
+Ensure that your analysis is well-reasoned, detailed, and consistently aligned with the information provided in the survey responses. 
+If there's ambiguity or lack of information in certain areas, acknowledge this and explain how it affects your prediction.
 ''')
 
+API_BASE_URL = "https://openrouter.ai/api/v1"
+MODEL_CHOICES = [
+    "openai/gpt-3.5-turbo",
+    "openai/gpt-4o",
+    "meta-llama/llama-2-13b-chat",
+    "anthropic/claude-3.5"
+]
+DEFAULT_MODEL = "meta-llama/llama-2-13b-chat"
 
-def output_qa(answered):
+
+def get_response_text(answered):
     text = []
     for question in answered:
         answer = answered[question]
-        content = f'question: {question}\n answer: {answer}\n'
+        content = f'question: {question} \t response: {answer}\n'
         text.append(content)
     return '\n'.join(text)
 
-def output_target(question):
-    return f'question: {question}\n'
+def validate_csv(filename):
+    required_columns = ['contract_id', 'name', 'question_id', 'question']
+    df = pd.read_csv(filename)
+    if not all(col in df.columns for col in required_columns):
+        raise ValueError("CSV file is missing required columns")
+    return df
 
-
-
-def process_csv(file, api_key, model, temperature):
-    client = OpenAI(base_url="https://openrouter.ai/api/v1", api_key=api_key)
+def process_csv(filename, api_key, model, temperature):
+    client = OpenAI(base_url=API_BASE_URL, api_key=api_key)
 
     log = f"Processing with model: {model}, temperature: {temperature}\n"
     yield log
 
-    def ask_llm(question):
+    def ask_llm(content):
         try:
             completion = client.chat.completions.create(
                 model=model,
@@ -58,7 +103,7 @@ def process_csv(file, api_key, model, temperature):
                 response_format={ "type": "json_object" },
                 messages=[
                     {"role": "system", "content": prompt_system},
-                    {"role": "user", "content": question}
+                    {"role": "user", "content": content}
                 ]
             )
             return completion.choices[0].message.content
@@ -66,10 +111,10 @@ def process_csv(file, api_key, model, temperature):
             print(f"Error in API call: {str(e)}")
             return None
 
-    df = pd.read_csv(file.name)
+    df = validate_csv(filename)
     questions = df.to_dict('records')
     
-    # Group questions by ContractID
+    # Group questions by contract_id
     grouped_questions = {}
     for question in questions:
         contract_id = question['contract_id']
@@ -82,6 +127,7 @@ def process_csv(file, api_key, model, temperature):
     random.shuffle(group_order)
 
     answered = {}
+    user_persona = {}
     for contract_id in group_order:
         group = grouped_questions[contract_id]
         yield f"Processing group: {contract_id}"
@@ -90,12 +136,17 @@ def process_csv(file, api_key, model, temperature):
         random.shuffle(group)
         
         for question in group:
-            txt_q = output_qa(answered)
-            txt_t = output_target(question)
-            message = question_prompt.render(question_and_answers=txt_q, target_question=txt_t)
-            message = question_prompt.render(question_and_answers = question['question'])
+            
+            # first question will be answered randomly
+            if len(answered) < 1:
+                answer = random.choice(range(1, 7))
+                answered[question['question']] = answer
+                continue
+            
+            txt_response = get_response_text(answered)
+            message = question_prompt.render(survey_responses=txt_response, user_persona=user_persona, new_question=question['question'])
             prompt = f'<s>[INST]<<SYS>>{prompt_system}<</SYS>>\n{message} [/INST]'
-            log += f"Processing question: {contract_id} - {question['question_id']}\n"
+            log += f"\n--> Processing question: {contract_id} - {question['question_id']} {question['question']}\n"
             yield log
 
             response = ask_llm(prompt)
@@ -103,9 +154,12 @@ def process_csv(file, api_key, model, temperature):
             if response:
                 try:
                     response_json = loads(response)
-                    answer_value = response_json.get('answer', 'N/A')
+                    user_persona = response_json.get('user_persona', {})
+                    response_prediction = response_json.get('response_prediction', {})
+                    answer_value = response_prediction.get('predicted_response', '')
                     answered[question['question']] = answer_value
                     log += f"Answer generated: {answer_value}\n"
+                    log += f"User persona: {user_persona}\n"
                 except:
                     log += f"Error parsing JSON for question {question['question_id']}: {response}\n"
             else:
@@ -124,8 +178,8 @@ iface = gr.Interface(
         gr.Textbox(label="API Key", type="password"),
         gr.Dropdown(
             label="LLM Model",
-            choices=["openai/gpt-3.5-turbo", "openai/gpt-4o", "meta-llama/llama-2-13b-chat", "anthropic/claude-3.5"],
-            value="meta-llama/llama-2-13b-chat"
+            choices=MODEL_CHOICES,
+            value=DEFAULT_MODEL
         ),
         gr.Slider(label="Temperature", minimum=0, maximum=1, step=0.1, value=0)
     ],
