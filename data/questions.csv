@@ -1,0 +1,22 @@
+ContractID,Name,QuestionID,Question
+Perceived Usefulness,Perceived Usefulness,Q1,To what extent do you agree that product recommendations make your shopping experience more interesting?
+Perceived Usefulness,Perceived Usefulness,Q2,To what extent do you agree that product recommendations make your shopping experience more enjoyable?
+Perceived Usefulness,Perceived Usefulness,Q3,To what extent do you agree that product recommendations help you make more informed purchase decisions?
+Perceived Usefulness,Perceived Usefulness,Q4,To what extent do you agree that product recommendations help you make more accurate purchase decisions?
+Perceived Usefulness,Perceived Usefulness,Q5,To what extent do you agree that product recommendations adequately meet your needs in your purchase decisions?
+Perceived Usefulness,Perceived Usefulness,Q6,To what extent do you agree that product recommendations improve your shopping experiences?
+Perceived Usefulness,Perceived Usefulness,Q7,To what extent do you agree that product recommendations improve your shopping outcomes?
+Perceived Ease of Use,Perceived Ease of Use,Q8,To what extent do you agree that it is easy to understand product recommendations?
+Perceived Ease of Use,Perceived Ease of Use,Q9,To what extent do you agree that it is easy to understand how to use product recommendations?
+Perceived Ease of Use,Perceived Ease of Use,Q10,To what extent do you agree that it is easy to learn how to use product recommendations?
+Perceived Ease of Use,Perceived Ease of Use,Q11,To what extent do you agree that it is easy to learn how product recommendations operate?
+Intention to Use,Intention to Use,Q12,To what extent do you agree that it is likely you will continue purchasing products from Amazon?
+Intention to Use,Intention to Use,Q13,To what extent do you agree that you will purchase products from Amazon next time you need them?
+Intention to Use,Intention to Use,Q14,Suppose that a friend wants your advice on his/her search for some products; to what extent do you agree that you would recommend him/her to purchase them from Amazon?
+Intention to Use,Intention to Use,Q15,To what extent do you agree that you will definitely purchase products again from Amazon?
+Demographic Information,Demographic Information,D1,What is your current working status?
+Demographic Information,Demographic Information,D2,What is your education background?
+Demographic Information,Demographic Information,D3,What is your age range?
+Demographic Information,Demographic Information,D4,What is your gender?
+Demographic Information,Demographic Information,D5,How many years have you used Amazon?
+Demographic Information,Demographic Information,D6,How many times did you shop on Amazon during the last three months?
