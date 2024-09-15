@@ -55,10 +55,10 @@ Your task is to analyze survey responses, create a user persona, and predict a r
    - What factors would be most important in their decision-making process?
 
 5. Predict the most likely response the persona would give, ensuring consistency with their established profile 
-and previous answers. The final answer shoule be only one digit chosen from provided options.
+and previous answers. If the survey responses are empty, generate a random answer for the question. 
+The final answer shoule be only one digit chosen from provided options. 
 
 6. Provide your full analysis and prediction in the following JSON format:
-
 {
   "user_persona": {
     "demographics": "Key demographic information inferred from survey responses",
@@ -202,12 +202,11 @@ def process_csv(filename, api_key, model, temperature, total_numbers):
             random.shuffle(group)
             
             for new_question in group:
-                # first question will be answered randomly
-                if len(answered) < 1:
-                    answer = random.choice(range(1, 7))
-                    answered[new_question['question']] = answer
-                    continue
-                
+                # # first question will be answered randomly
+                # if len(answered) < 1:
+                #     answer = random.choice(range(1, 7))
+                #     answered[new_question['question']] = answer
+                #     continue
                 prompt, msg = prepare_question_prompt(all_questions, answered, new_question, user_persona)
                 log += msg
                 yield log, output_filename
@@ -258,6 +257,9 @@ iface = gr.Interface(
     outputs=[
         gr.Textbox(label="Execution Log", lines=30),
         gr.File(label="Download Results in CSV")
+    ],
+    examples = [
+        ["data/questions.csv", "openrouter-api", "openai/gpt-4o", 0.1, 3]
     ],
     title="User Survey Generator",
     description="Upload a CSV file with questions (contract_id, name, question_id, question). Provide API key and model settings. The AI will generate persona-based responses for each question."
