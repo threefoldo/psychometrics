@@ -1,4 +1,5 @@
 import re, csv
+import shutil
 import time, random
 import gradio as gr
 import pandas as pd
@@ -166,7 +167,7 @@ def process_csv(filename, api_key, model, temperature, total_numbers):
     questions_list = df.to_dict('records')
     qid_ordered = [q['question_id'] for q in questions_list]
     timestamp = datetime.now().strftime('%Y%m%d%H%M')
-    output_filename = f"results_{timestamp}.csv"
+    output_filename = f"results_{timestamp}_0.csv"
     
     # Create the empty CSV file
     empty_df = pd.DataFrame(columns=qid_ordered)
@@ -195,7 +196,7 @@ def process_csv(filename, api_key, model, temperature, total_numbers):
         user_persona = {}
         for contract_id in group_order:
             group = grouped_questions[contract_id]
-            yield f"Processing group: {contract_id}", output_filename
+            yield f"Processing group: {contract_id}", None
             
             # Randomly shuffle questions within the group
             random.shuffle(group)
@@ -210,6 +211,7 @@ def process_csv(filename, api_key, model, temperature, total_numbers):
                 prompt, msg = prepare_question_prompt(all_questions, answered, new_question, user_persona)
                 log += msg
                 yield log, output_filename
+                
                 logging.info(f"prompt: {prompt}\n")
                 response = ask_llm(client, model, prompt, temperature)
                 logging.info(f"response: {response}")
@@ -223,19 +225,22 @@ def process_csv(filename, api_key, model, temperature, total_numbers):
                 
         logging.info(f"** answered **: {answered}")
         log += "Processing complete.\n"
-        yield log, output_filename
         
         report = {}
         # convert answered to a matrix
         for q in answered:
             question = all_questions[q]
             report[question['question_id']] = answered[q]
-        with open(output_filename, 'a', newline='\n') as csvfile:
+        new_output_file = f"results_{timestamp}_{i+1}.csv"
+        shutil.copy(output_filename, new_output_file)
+        with open(new_output_file, 'a', newline='\n') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(','.join([report[qid] for qid in qid_ordered]))
+            writer.writerow([str(report[qid]) for qid in qid_ordered])
+            
+        output_filename = new_output_file
+        yield log, new_output_file
     
-
-    return log, output_filename
+    # return log, output_filename
 
 iface = gr.Interface(
     fn=process_csv,
@@ -248,7 +253,7 @@ iface = gr.Interface(
             value=DEFAULT_MODEL
         ),
         gr.Slider(label="Temperature", minimum=0, maximum=1, step=0.1, value=0),
-        gr.Slider(label="Total cases", minimum=10, maximum=500, step=10, value=50)
+        gr.Slider(label="Total cases", minimum=1, maximum=500, step=1, value=1)
     ],
     outputs=[
         gr.Textbox(label="Execution Log", lines=30),
