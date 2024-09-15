@@ -1,22 +1,22 @@
-ContractID,Name,QuestionID,Question
-Perceived Usefulness,Perceived Usefulness,Q1,To what extent do you agree that product recommendations make your shopping experience more interesting?
-Perceived Usefulness,Perceived Usefulness,Q2,To what extent do you agree that product recommendations make your shopping experience more enjoyable?
-Perceived Usefulness,Perceived Usefulness,Q3,To what extent do you agree that product recommendations help you make more informed purchase decisions?
-Perceived Usefulness,Perceived Usefulness,Q4,To what extent do you agree that product recommendations help you make more accurate purchase decisions?
-Perceived Usefulness,Perceived Usefulness,Q5,To what extent do you agree that product recommendations adequately meet your needs in your purchase decisions?
-Perceived Usefulness,Perceived Usefulness,Q6,To what extent do you agree that product recommendations improve your shopping experiences?
-Perceived Usefulness,Perceived Usefulness,Q7,To what extent do you agree that product recommendations improve your shopping outcomes?
-Perceived Ease of Use,Perceived Ease of Use,Q8,To what extent do you agree that it is easy to understand product recommendations?
-Perceived Ease of Use,Perceived Ease of Use,Q9,To what extent do you agree that it is easy to understand how to use product recommendations?
-Perceived Ease of Use,Perceived Ease of Use,Q10,To what extent do you agree that it is easy to learn how to use product recommendations?
-Perceived Ease of Use,Perceived Ease of Use,Q11,To what extent do you agree that it is easy to learn how product recommendations operate?
-Intention to Use,Intention to Use,Q12,To what extent do you agree that it is likely you will continue purchasing products from Amazon?
-Intention to Use,Intention to Use,Q13,To what extent do you agree that you will purchase products from Amazon next time you need them?
-Intention to Use,Intention to Use,Q14,Suppose that a friend wants your advice on his/her search for some products; to what extent do you agree that you would recommend him/her to purchase them from Amazon?
-Intention to Use,Intention to Use,Q15,To what extent do you agree that you will definitely purchase products again from Amazon?
-Demographic Information,Demographic Information,D1,What is your current working status?
-Demographic Information,Demographic Information,D2,What is your education background?
-Demographic Information,Demographic Information,D3,What is your age range?
-Demographic Information,Demographic Information,D4,What is your gender?
-Demographic Information,Demographic Information,D5,How many years have you used Amazon?
-Demographic Information,Demographic Information,D6,How many times did you shop on Amazon during the last three months?
+contract_id,name,question_id,question,options
+Control,Demographic Information,D1,What is your current working status?,1:Yes; 0:no
+Control,Demographic Information,D2,What is your education background? ,1:high school; 2:college; 3:undergraduate; 4:graduate
+Control,Demographic Information,D3,What is your age range? ,1:under 16; 2:16-24; 3:24-40; 4:40-60;5:60+
+Control,Demographic Information,D4,What is your gender?,1:male;2:female;3:other
+Control,Demographic Information,D5,How many years have you used Amazon? ,1:less than 1 year; 2:1-3 years; 3:3+ years
+Control,Demographic Information,D6,How many times did you shop on Amazon during the last three months?,1:never; 2:a few times; 3:frequently
+Perceived Usefulness,Perceived Usefulness,Q1,To what extent do you agree that product recommendations make your shopping experience more interesting?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Usefulness,Perceived Usefulness,Q2,To what extent do you agree that product recommendations make your shopping experience more enjoyable?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Usefulness,Perceived Usefulness,Q3,To what extent do you agree that product recommendations help you make more informed purchase decisions?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Usefulness,Perceived Usefulness,Q4,To what extent do you agree that product recommendations help you make more accurate purchase decisions?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Usefulness,Perceived Usefulness,Q5,To what extent do you agree that product recommendations adequately meet your needs in your purchase decisions?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Usefulness,Perceived Usefulness,Q6,To what extent do you agree that product recommendations improve your shopping experiences? ,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Usefulness,Perceived Usefulness,Q7,To what extent do you agree that product recommendations improve your shopping outcomes?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Ease of Use,Perceived Ease of Use,Q8,To what extent do you agree that it is easy to understand product recommendations?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Ease of Use,Perceived Ease of Use,Q9,To what extent do you agree that it is easy to understand how to use product recommendations?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Ease of Use,Perceived Ease of Use,Q10,To what extent do you agree that it is easy to learn how to use product recommendations?,1(Strongly Disagree) - 7 (Strongly Agree)
+Perceived Ease of Use,Perceived Ease of Use,Q11,To what extent do you agree that it is easy to learn how product recommendations operate?,1(Strongly Disagree) - 7 (Strongly Agree)
+Intention to Use,Intention to Use,Q12,To what extent do you agree that it is likely you will continue purchasing products from Amazon?,1(Strongly Disagree) - 7 (Strongly Agree)
+Intention to Use,Intention to Use,Q13,To what extent do you agree that you will purchase products from Amazon next time you need them?,1(Strongly Disagree) - 7 (Strongly Agree)
+Intention to Use,Intention to Use,Q14,Suppose that a friend wants your advice on his/her search for some products; to what extent do you agree that you would recommend him/her to purchase them from Amazon?,1(Strongly Disagree) - 7 (Strongly Agree)
+Intention to Use,Intention to Use,Q15,To what extent do you agree that you will definitely purchase products again from Amazon?,1(Strongly Disagree) - 7 (Strongly Agree)
