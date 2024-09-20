@@ -258,7 +258,7 @@ iface = gr.Interface(
         gr.File(label="Download Results in CSV")
     ],
     examples = [
-        ["data/questions.csv", "openrouter-api", "openai/gpt-4o", 0.1, 3]
+        ["data/questions.csv", "", "openai/gpt-4o", 0.1, 3]
     ],
     title="User Survey Generator",
     description="Upload a CSV file with questions (contract_id, name, question_id, question). Provide API key and model settings. The AI will generate persona-based responses for each question."
