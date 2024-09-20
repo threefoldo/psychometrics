@@ -157,6 +157,7 @@ def parse_response(answered, new_question, response):
 
 
 def process_csv(filename, api_key, model, temperature, total_numbers):
+    if api_key == '': return '', ''
     client = OpenAI(base_url=API_BASE_URL, api_key=api_key)
     logging.info(f"Processing with model: {model}, temperature: {temperature}\n")
     logging.info(f"Generate {total_numbers} cases")
