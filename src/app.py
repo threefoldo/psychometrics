@@ -59,22 +59,13 @@ and previous answers. If the survey responses are empty, generate a random answe
 The final answer shoule be only one digit chosen from provided options. 
 
 6. Provide your full analysis and prediction in the following JSON format:
+```json
 {
-  "user_persona": {
-    "demographics": "Key demographic information inferred from survey responses",
-    "psychographics": "Relevant attitudes, values, and lifestyle factors",
-    "behaviors": "Notable behavioral patterns or preferences",
-    "motivations": "Primary motivations or pain points influencing decisions"
-  },
-  "persona_analysis": "A detailed paragraph describing the user persona, synthesizing the information from the above categories. Explain how you've drawn these conclusions from the survey responses.",
-  "question_analysis": "A paragraph examining the new question from the persona's perspective. Discuss which aspects would be most relevant or impactful for this user.",
-  "response_prediction": {
-    "reasoning": "A thorough explanation of why this response was predicted, referencing specific aspects of the persona and their previous responses",
-    "predicted_response": "The predicted response to the new question",
-    "confidence_level": "High/Medium/Low, based on how well the persona aligns with the new question",
-  },
-  "response": "The final answer to the problem, it should be a number chosen from the options"
+  "user_persona": "A paragraph providing a comprehensive, concrete description of the imagined user persona, including all relevant demographic info, personality traits, shopping preferences and habits that can be gleaned from their provided answers. Avoid relying on implicit assumptions and aim to create a detailed, fleshed-out user profile.",
+  "reasoning": "A paragraph outlining the step-by-step logical reasoning and thought process of how this specific user persona would approach the target question based on their established traits and preferences. Explain how these factors would influence them to ultimately select a particular answer from the given options.", 
+  "answer": "A single digit representing their selected answer, ensuring it is consistent with both their persona and their answers to the other questions, and falls within the scope of the provided options."
 }
+```
 
 Ensure that your analysis is well-reasoned, detailed, and consistently aligned with the information provided in the survey responses. 
 If there's ambiguity or lack of information in certain areas, acknowledge this and explain how it affects your prediction.
@@ -84,12 +75,13 @@ API_BASE_URL = "https://openrouter.ai/api/v1"
 MODEL_CHOICES = [
     "openai/gpt-3.5-turbo",
     "openai/gpt-4o",
-    "meta-llama/llama-2-13b-chat",
-    "anthropic/claude-3.5"
+    "meta-llama/llama-3.1-70b-instruct",
+    "anthropic/claude-3.5-sonnet"
 ]
 DEFAULT_MODEL = "openai/gpt-4o"
 
-answer_pattern = re.compile(r'response[\'"\s]*[:=][\s\'"]*(\d+)')
+json_pattern = re.compile(r'```json\n(.*?)```', re.DOTALL)
+answer_pattern = re.compile(r'answer[\'"\s]*[:=][\s\'"]*(\d+)')
 csv_columns = ['contract_id', 'name', 'question_id', 'question', 'options']
 
 def get_response_text(questions, answered):
@@ -114,6 +106,7 @@ def ask_llm(client, model, content, temperature=0.7):
         completion = client.chat.completions.create(
             model=model,
             temperature=float(temperature),
+            seed=seed,
             response_format={ "type": "json_object" },
             messages=[
                 {"role": "system", "content": prompt_system},
@@ -141,9 +134,14 @@ def parse_response(answered, new_question, response):
         log = f"No response received for question {new_question['question_id']}\n"
         return user_persona, log
     try:
-        response_json = loads(response)
-        user_persona = response_json.get('user_persona', {})
-        answer_value = response_json.get('response', '')
+        json_text = response
+        match_json = json_pattern.search(response)
+        if match_json:
+            json_text = match_json.group(1)
+            print(f'matched: {json_text}')
+        response_json = loads(json_text)
+        user_persona = response_json.get('user_persona', '')
+        answer_value = response_json.get('answer', '')
     except:
         match = answer_pattern.search(response)
         if match:
@@ -266,4 +264,4 @@ iface = gr.Interface(
 )
 
 iface.queue()
-iface.launch(share=False)
+iface.launch(share=True)
